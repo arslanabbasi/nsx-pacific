@@ -18,16 +18,3 @@
         state: "{{ state }}"
       with_items:
         - "{{ transport_node_profiles }}"
-#      uri:
-#        url: "https://{{ nsx_node1.mgmt_ip }}/api/v1/transport-node-profiles"
-#        method: POST
-#        user: "{{ nsx_username }}"
-#        password: "{{ nsx_password }}"
-#        validate_certs: "{{ validate_certs }}"
-#        force_basic_auth: yes
-#        body_format: json
-#        body: "{{ item }}"
-#        status_code: 201
-#      with_items:
-#        - "{{ transport_node_profiles }}"
-       
