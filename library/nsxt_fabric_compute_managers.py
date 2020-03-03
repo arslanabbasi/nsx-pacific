@@ -219,6 +219,7 @@ def check_for_update(module, manager_url, mgr_username, mgr_password, validate_c
 def main():
   argument_spec = vmware_argument_spec()
   argument_spec.update(display_name=dict(required=True, type='str'),
+                    set_as_oidc_provider=dict(required=False, type='bool', default=True),
                     credential=dict(required=False, type='dict', no_log=True,
                     username=dict(required=False, type='str'),
                     password=dict(required=False, type='str'),

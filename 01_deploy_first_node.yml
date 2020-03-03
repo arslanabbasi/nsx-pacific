@@ -9,7 +9,7 @@
   connection: local
   become: yes
   vars_files:
-    - nsx_wcp_vars.yml
+    - nsx_pacific_vars.yml
   tasks:
     - name: deploy NSX Manager OVA
       nsxt_deploy_ova:
