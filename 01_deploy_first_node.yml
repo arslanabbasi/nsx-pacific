@@ -30,9 +30,9 @@
         cli_password: "{{ nsx_password }}"
         path_to_ova: "{{ nsx_ova_path }}"
         ova_file: "{{ nsx_ova }}"
-        vcenter: "{{ compute_managers[0]['mgmt_ip'] }}"
-        vcenter_user: "{{ compute_managers[0]['username'] }}"
-        vcenter_passwd: "{{ compute_managers[0]['password'] }}"
+        vcenter: "{{ nsx_vcenter_fqdn }}"
+        vcenter_user: "{{ nsx_vcenter_user }}"
+        vcenter_passwd: "{{ nsx_vcenter_password }}"
         deployment_size: "small"
         role: "NSX Manager"
 

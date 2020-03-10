@@ -27,9 +27,9 @@
               root_password: "{{ nsx_password }}"
             deployment_config:
               placement_type: VsphereClusterNodeVMDeploymentConfig
-              vc_name: "{{ compute_managers[0]['display_name'] }}"
-              vc_username: "{{ compute_managers[0]['username'] }}"
-              vc_password: "{{ compute_managers[0]['password'] }}"
+              vc_name: "{{ item.vcenter }}"
+              vc_username: "{{ item.vcenter_user }}"
+              vc_password: "{{ item.vcenter_pass }}"
               management_network: "{{ item.portgroup }}"
               hostname: "{{ item.hostname }}"
               compute: "{{ item.cluster }}"

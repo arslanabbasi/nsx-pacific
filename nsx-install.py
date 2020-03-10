@@ -142,6 +142,7 @@ def reset_defaults():
   writeln (f, comment = "Defaults\n")
   writeln (f, "nsx_username", "admin", "NSX Username")
   writeln (f, "validate_certs", "false", "Accept self-signed certs")
+  writeln (f, "nsx_vcenter", "vSphere_NSX_deploy", "Display name of vCenter on which NSX will be deployed")
   writeln (f, "compute_manager_name", "vcenter", "Display Name on NSX Manager for the registered vCenter Server")
   writeln (f, "overlay_tz_name", "Overlay-TZ", "Overlay Transport Zone display name")
   writeln (f, "vlan_tz_name", "VLAN-TZ", "VLAN Transport Zone display name")
@@ -181,6 +182,9 @@ def reset_config():
   writeln (f, "gateway", "", "Gateway to be configured on NSX Manager", "192.168.1.1")
   writeln (f, "dns_server", "", "DNS Server to be configured on NSX Manager", "8.8.8.8")
   writeln (f, "ntp_server", "", "NTP Server to be configured on NSX Manager", "216.239. 35.0")
+  writeln (f, "nsx_vcenter_fqdn", "", "vCenter where NSX will be deployed", "10.10.10.2")
+  writeln (f, "nsx_vcenter_user", "", "vCenter Username for NSX deployment", "administrator@vsphere.local")
+  writeln (f, "nsx_vcenter_password", "", "vCenter Password for NSX deployment", "myPassword1!")
 
   writeheader (f, "First NSX Manager node deployment details")
   writeln (f, "node1_hostname", "", "FQDN of the first NSX Manager", "nsx1.mylab.net")
@@ -326,6 +330,10 @@ def generate_vars_file():
   nsx_vars ["dns_server"] = config ["dns_server"]
   nsx_vars ["ntp_server"] = config ["ntp_server"]
 
+  nsx_vars ["nsx_vcenter_fqdn"] = config ["nsx_vcenter_fqdn"]
+  nsx_vars ["nsx_vcenter_user"] = config ["nsx_vcenter_user"]
+  nsx_vars ["nsx_vcenter_password"] = config ["nsx_vcenter_password"]
+
   node1 = dict()
   node1 ["hostname"] = config ["node1_hostname"]
   node1 ["mgmt_ip"] = config ["node1_mgmt_ip"]
@@ -344,6 +352,9 @@ def generate_vars_file():
   node2 ["cluster"] = config ["node2_cluster"]
   node2 ["datastore"] = config ["node2_datastore"]
   node2 ["portgroup"] = config ["node2_portgroup"]
+  node2 ["vcenter"] = defaults ["nsx_vcenter"]
+  node2 ["vcenter_user"] = config ["nsx_vcenter_user"]
+  node2 ["vcenter_pass"] = config ["nsx_vcenter_password"]
   additional_nodes.append (node2)
   node3 = dict()
   node3 ["hostname"] = config ["node3_hostname"]
@@ -352,6 +363,10 @@ def generate_vars_file():
   node3 ["datacenter"] = config ["node3_datacenter"]
   node3 ["cluster"] = config ["node3_cluster"]
   node3 ["datastore"] = config ["node3_datastore"]
+  node3 ["portgroup"] = config ["node3_portgroup"]
+  node3 ["vcenter"] = defaults ["nsx_vcenter"]
+  node3 ["vcenter_user"] = config ["nsx_vcenter_user"]
+  node3 ["vcenter_pass"] = config ["nsx_vcenter_password"]
   additional_nodes.append (node3)
   nsx_vars ["additional_nodes"] = additional_nodes
 
@@ -365,13 +380,22 @@ def generate_vars_file():
   cm1 ["password"] = config ["vcenter_password"]
   cm1 ["set_as_oidc_provider"] = "true"
   cm.append (cm1)
+  cm2 = dict()
+  cm2 ["display_name"] = defaults ["nsx_vcenter"]
+  cm2 ["mgmt_ip"] = config ["nsx_vcenter_fqdn"]
+  cm2 ["origin_type"] = "vCenter"
+  cm2 ["credential_type"] = "UsernamePasswordLoginCredential"
+  cm2 ["username"] = config ["nsx_vcenter_user"]
+  cm2 ["password"] = config ["nsx_vcenter_password"]
+  cm2 ["set_as_oidc_provider"] = "false"
+  cm.append (cm2)
   nsx_vars ["compute_managers"] = cm
 
   licences = list()
   license = dict()
   license ["license_key"] = config ["nsx_license_key"]
   licences.append (license)
-  nsx_vars ["nsxt_licences"] = licences
+  nsx_vars ["nsxt_licenses"] = licences
 
   tzs = list()
   tz1 = dict()
@@ -701,8 +725,10 @@ def install_nsx():
   logging.debug("install_nsx: Started")
 
   generate_vars_file()
-
 #  os.system ("cat %s" % g_nsx_install_vars)
+  logging.debug("install_nsx: Done. Variables file generated.")
+  print ("Reseting defaults done.")
+
 
 
 #
