@@ -19,7 +19,6 @@
         validate_certs: "{{ validate_certs }}"
         display_name: "{{ item.display_name }}"
         state: "{{ state }}"
-        tags: "{{ item.tags }}"
         pool_static_subnets: "{{ item.pool_static_subnets }}"
       with_items:
         - "{{ ip_pools }}"
