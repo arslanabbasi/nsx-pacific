@@ -114,8 +114,8 @@ def main():
 
   if state == 'present':
     # add the license
-    if check_license_exist(module, manager_url, mgr_username, mgr_password, validate_certs):
-        module.exit_json(changed=False, message="license with license key %s already exist."% module.params['license_key'])
+#    if check_license_exist(module, manager_url, mgr_username, mgr_password, validate_certs):
+#        module.exit_json(changed=False, message="license with license key %s already exist."% module.params['license_key'])
     if module.check_mode:
        module.exit_json(changed=True, debug_out=str(request_data), id=module.params['license_key'])
     try:
