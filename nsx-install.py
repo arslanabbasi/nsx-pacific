@@ -411,33 +411,37 @@ def generate_vars_file():
   ip_pools = list()
   edge_pool = dict()
   edge_pool ["display_name"] = defaults ["ip_pool_1_name"]
-  edge_pool_subnets = dict()
-  edge_pool_subnets ["state"] = "present"
-  edge_pool_subnets ["id"] = defaults ["ip_pool_1_name"] + "_subnets"
+  edge_pool_subnets = list()
+  edge_pool_subnet = dict()
+  edge_pool_subnet ["state"] = "present"
+  edge_pool_subnet ["id"] = defaults ["ip_pool_1_name"] + "_subnets"
   edge_allocation_ranges = list()
   edge_ranges = dict()
   edge_ranges ["start"] = config ["ip_pool_1_start"]
   edge_ranges ["end"] = config ["ip_pool_1_end"]
   edge_allocation_ranges.append (edge_ranges)
-  edge_pool_subnets ["allocation_ranges"] = edge_allocation_ranges
-  edge_pool_subnets ["gateway_ip"] = config ["ip_pool_1_gateway"]
-  edge_pool_subnets ["cidr"] = config ["ip_pool_1_cidr"]
+  edge_pool_subnet ["allocation_ranges"] = edge_allocation_ranges
+  edge_pool_subnet ["gateway_ip"] = config ["ip_pool_1_gateway"]
+  edge_pool_subnet ["cidr"] = config ["ip_pool_1_cidr"]
+  edge_pool_subnets.append (edge_pool_subnet)
   edge_pool ["pool_static_subnets"] = edge_pool_subnets
   ip_pools.append (edge_pool)
 
   host_pool = dict()
   host_pool ["display_name"] = defaults ["ip_pool_2_name"]
-  host_pool_subnets = dict()
-  host_pool_subnets ["state"] = "present"
-  host_pool_subnets ["id"] = defaults ["ip_pool_2_name"] + "_subnets"
+  host_pool_subnets = list()
+  host_pool_subnet = dict()
+  host_pool_subnet ["state"] = "present"
+  host_pool_subnet ["id"] = defaults ["ip_pool_2_name"] + "_subnets"
   host_allocation_ranges = list()
   host_ranges = dict()
   host_ranges ["start"] = config ["ip_pool_2_start"]
   host_ranges ["end"] = config ["ip_pool_2_end"]
   host_allocation_ranges.append (host_ranges)
-  host_pool_subnets ["allocation_ranges"] = host_allocation_ranges
-  host_pool_subnets ["gateway_ip"] = config ["ip_pool_2_gateway"]
-  host_pool_subnets ["cidr"] = config ["ip_pool_2_cidr"]
+  host_pool_subnet ["allocation_ranges"] = host_allocation_ranges
+  host_pool_subnet ["gateway_ip"] = config ["ip_pool_2_gateway"]
+  host_pool_subnet ["cidr"] = config ["ip_pool_2_cidr"]
+  host_pool_subnets.append (host_pool_subnet)
   host_pool ["pool_static_subnets"] = host_pool_subnets
   ip_pools.append (host_pool)
   nsx_vars ["ip_pools"] = ip_pools
