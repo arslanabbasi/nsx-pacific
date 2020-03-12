@@ -183,7 +183,7 @@ def reset_config():
   writeln (f, "dns_server", "", "DNS Server to be configured on NSX Manager", "8.8.8.8")
   writeln (f, "ntp_server", "", "NTP Server to be configured on NSX Manager", "216.239. 35.0")
   writeln (f, "nsx_vcenter_fqdn", "", "vCenter where NSX will be deployed", "10.10.10.2")
-  writeln (f, "nsx_vcenter_user", "", "vCenter Username for NSX deployment", "administrator@vsphere.local")
+  writeln (f, "nsx_vcenter_username", "", "vCenter Username for NSX deployment", "administrator@vsphere.local")
   writeln (f, "nsx_vcenter_password", "", "vCenter Password for NSX deployment", "myPassword1!")
 
   writeheader (f, "First NSX Manager node deployment details")
@@ -331,7 +331,7 @@ def generate_vars_file():
   nsx_vars ["ntp_server"] = config ["ntp_server"]
 
   nsx_vars ["nsx_vcenter_fqdn"] = config ["nsx_vcenter_fqdn"]
-  nsx_vars ["nsx_vcenter_user"] = config ["nsx_vcenter_user"]
+  nsx_vars ["nsx_vcenter_username"] = config ["nsx_vcenter_username"]
   nsx_vars ["nsx_vcenter_password"] = config ["nsx_vcenter_password"]
 
   node1 = dict()
@@ -353,7 +353,7 @@ def generate_vars_file():
   node2 ["datastore"] = config ["node2_datastore"]
   node2 ["portgroup"] = config ["node2_portgroup"]
   node2 ["vcenter"] = defaults ["nsx_vcenter"]
-  node2 ["vcenter_user"] = config ["nsx_vcenter_user"]
+  node2 ["vcenter_user"] = config ["nsx_vcenter_username"]
   node2 ["vcenter_pass"] = config ["nsx_vcenter_password"]
   additional_nodes.append (node2)
   node3 = dict()
@@ -365,7 +365,7 @@ def generate_vars_file():
   node3 ["datastore"] = config ["node3_datastore"]
   node3 ["portgroup"] = config ["node3_portgroup"]
   node3 ["vcenter"] = defaults ["nsx_vcenter"]
-  node3 ["vcenter_user"] = config ["nsx_vcenter_user"]
+  node3 ["vcenter_user"] = config ["nsx_vcenter_username"]
   node3 ["vcenter_pass"] = config ["nsx_vcenter_password"]
   additional_nodes.append (node3)
   nsx_vars ["additional_nodes"] = additional_nodes
@@ -385,7 +385,7 @@ def generate_vars_file():
   cm2 ["mgmt_ip"] = config ["nsx_vcenter_fqdn"]
   cm2 ["origin_type"] = "vCenter"
   cm2 ["credential_type"] = "UsernamePasswordLoginCredential"
-  cm2 ["username"] = config ["nsx_vcenter_user"]
+  cm2 ["username"] = config ["nsx_vcenter_username"]
   cm2 ["password"] = config ["nsx_vcenter_password"]
   cm2 ["set_as_oidc_provider"] = "false"
   cm.append (cm2)
@@ -452,7 +452,7 @@ def generate_vars_file():
   host_switch_spec ["resource_type"] = "StandardHostSwitchSpec"
   host_switches = list()
   host_switch = dict()
-  host_switch ["host_switch_name"] = defaults ["edge1_host_switch_name"]
+#  host_switch ["host_switch_name"] = defaults ["edge1_host_switch_name"]
   host_switch ["host_switch_type"] = "NVDS"
   host_switch ["host_switch_mode"] = "STANDARD"
   host_switch_profiles = list()
@@ -465,7 +465,7 @@ def generate_vars_file():
     logging.error ("Max allowed Edge Uplinks: 2. Configured: %s" % config ["edge1_number_of_uplinks"])
     print ("ERROR: Max allowed Edge Uplinks: 2. Configured: %s" % config ["edge1_number_of_uplinks"])
     sys.exit (2)
-  for i in range (int (config ["edge1_number_of_uplinks"])):
+  for i in range (int (config ["edge1_number_of_uplinks"]) - 1):
     pnic = dict()
     if (i == 0):
       pnic ["device_name"] = "fp-eth0"
@@ -492,9 +492,9 @@ def generate_vars_file():
   node_dep_info ["deployment_type"] = "VIRTUAL_MACHINE"
   dep_config = dict()
   vm_dep_config = dict()
-  vm_dep_config ["vc_name"] = defaults ["compute_manager_name"]
-  vm_dep_config ["vc_username"] = config ["vcenter_username"]
-  vm_dep_config ["vc_password"] = config ["vcenter_password"]
+  vm_dep_config ["vc_name"] = defaults ["nsx_vcenter"]
+  vm_dep_config ["vc_username"] = config ["nsx_vcenter_username"]
+  vm_dep_config ["vc_password"] = config ["nsx_vcenter_password"]
   vm_dep_config ["compute"] = config ["edge1_cluster"]
   vm_dep_config ["storage"] = config ["edge1_storage"]
   vm_dep_config ["management_network"] = config ["edge1_mgmt_network"]
@@ -503,17 +503,17 @@ def generate_vars_file():
   port_subnet = dict()
   port_subnet ["ip_addresses"] = list()
   port_subnet ["ip_addresses"].append (config ["edge1_mgmt_ip"])
-  port_subnet ["prefix_length"] = config ["edge1_mgmt_netmask_prefix"]
+  port_subnet ["prefix_length"] = int( config ["edge1_mgmt_netmask_prefix"])
   vm_dep_config ["management_port_subnets"].append (port_subnet)
   vm_dep_config ["default_gateway_addresses"] = list()
   vm_dep_config ["default_gateway_addresses"].append (config ["edge1_default_gateway"])
   vm_dep_config ["data_networks"] = list()
   vm_dep_config ["data_networks"].append (config ["edge2_data_network"])
-  vm_dep_config ["enable_ssh"] = "true"
-  vm_dep_config ["iallow_ssh_root_login"] = "true"
+  vm_dep_config ["enable_ssh"] = bool ("true")
+  vm_dep_config ["allow_ssh_root_login"] = bool ("true")
   vm_dep_config ["placement_type"] = "VsphereDeploymentConfig"
   dep_config ["vm_deployment_config"] = vm_dep_config
-  dep_config ["form_factor"] = "LARGE"
+  dep_config ["form_factor"] = "MEDIUM"
   node_user_settings = dict()
   node_user_settings ["cli_username"] = "admin"
   node_user_settings ["cli_password"] = config ["edge1_system_password"]
@@ -524,19 +524,22 @@ def generate_vars_file():
   node_dep_info ["deployment_config"] = dep_config
   node_settings = dict()
   node_settings ["hostname"] = config ["edge1_fqdn"]
-  node_settings ["enable_ssh"] = "true"
-  node_settings ["allow_ssh_root_login"] = "true"
+  node_settings ["enable_ssh"] = bool ("true")
+  node_settings ["allow_ssh_root_login"] = bool ("true")
   node_dep_info ["node_settings"] = node_settings
   node_dep_info ["resource_type"] = "EdgeNode"
   node_dep_info ["display_name"] = defaults ["edge1_display_name"]
   edge1 ["node_deployment_info" ] = node_dep_info
+  edge1 ["display_name"] = defaults ["edge1_display_name"]
+  edge1 ["resource_type"] = "TransportNode"
   edge_tnp.append(edge1)
+
   edge2 = dict()
   host_switch_spec = dict()
   host_switch_spec ["resource_type"] = "StandardHostSwitchSpec"
   host_switches = list()
   host_switch = dict()
-  host_switch ["host_switch_name"] = defaults ["edge2_host_switch_name"]
+#  host_switch ["host_switch_name"] = defaults ["edge2_host_switch_name"]
   host_switch ["host_switch_type"] = "NVDS"
   host_switch ["host_switch_mode"] = "STANDARD"
   host_switch_profiles = list()
@@ -549,7 +552,7 @@ def generate_vars_file():
     logging.error ("Max allowed Edge Uplinks: 2. Configured: %s" % config ["edge2_number_of_uplinks"])
     print ("ERROR: Max allowed Edge Uplinks: 2. Configured: %s" % config ["edge2_number_of_uplinks"])
     sys.exit (2)
-  for i in range (int (config ["edge2_number_of_uplinks"])):
+  for i in range (int (config ["edge2_number_of_uplinks"]) - 1):
     pnic = dict()
     if (i == 0):
       pnic ["device_name"] = "fp-eth0"
@@ -576,9 +579,9 @@ def generate_vars_file():
   node_dep_info ["deployment_type"] = "VIRTUAL_MACHINE"
   dep_config = dict()
   vm_dep_config = dict()
-  vm_dep_config ["vc_name"] = defaults ["compute_manager_name"]
-  vm_dep_config ["vc_username"] = config ["vcenter_username"]
-  vm_dep_config ["vc_password"] = config ["vcenter_password"]
+  vm_dep_config ["vc_name"] = defaults ["nsx_vcenter"]
+  vm_dep_config ["vc_username"] = config ["nsx_vcenter_username"]
+  vm_dep_config ["vc_password"] = config ["nsx_vcenter_password"]
   vm_dep_config ["compute"] = config ["edge2_cluster"]
   vm_dep_config ["storage"] = config ["edge2_storage"]
   vm_dep_config ["management_network"] = config ["edge2_mgmt_network"]
@@ -587,17 +590,17 @@ def generate_vars_file():
   port_subnet = dict()
   port_subnet ["ip_addresses"] = list()
   port_subnet ["ip_addresses"].append (config ["edge2_mgmt_ip"])
-  port_subnet ["prefix_length"] = config ["edge2_mgmt_netmask_prefix"]
+  port_subnet ["prefix_length"] = int (config ["edge2_mgmt_netmask_prefix"])
   vm_dep_config ["management_port_subnets"].append (port_subnet)
   vm_dep_config ["default_gateway_addresses"] = list()
   vm_dep_config ["default_gateway_addresses"].append (config ["edge2_default_gateway"])
   vm_dep_config ["data_networks"] = list()
   vm_dep_config ["data_networks"].append (config ["edge2_data_network"])
-  vm_dep_config ["enable_ssh"] = "true"
-  vm_dep_config ["iallow_ssh_root_login"] = "true"
+  vm_dep_config ["enable_ssh"] = bool ("true")
+  vm_dep_config ["allow_ssh_root_login"] = bool ("true")
   vm_dep_config ["placement_type"] = "VsphereDeploymentConfig"
   dep_config ["vm_deployment_config"] = vm_dep_config
-  dep_config ["form_factor"] = "LARGE"
+  dep_config ["form_factor"] = "MEDIUM"
   node_user_settings = dict()
   node_user_settings ["cli_username"] = "admin"
   node_user_settings ["cli_password"] = config ["edge2_system_password"]
@@ -608,12 +611,14 @@ def generate_vars_file():
   node_dep_info ["deployment_config"] = dep_config
   node_settings = dict()
   node_settings ["hostname"] = config ["edge2_fqdn"]
-  node_settings ["enable_ssh"] = "true"
-  node_settings ["allow_ssh_root_login"] = "true"
+  node_settings ["enable_ssh"] = bool ("true")
+  node_settings ["allow_ssh_root_login"] = bool ("true")
   node_dep_info ["node_settings"] = node_settings
   node_dep_info ["resource_type"] = "EdgeNode"
   node_dep_info ["display_name"] = defaults ["edge2_display_name"]
   edge2 ["node_deployment_info" ] = node_dep_info
+  edge2 ["display_name"] = defaults ["edge2_display_name"]
+  edge2 ["resource_type"] = "TransportNode"
   edge_tnp.append(edge2)
   nsx_vars ["edge_transport_nodes"] = edge_tnp
 
