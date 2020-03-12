@@ -625,10 +625,10 @@ def generate_vars_file():
   edge_clusters = list()
   edge_cluster = dict()
   edge_cluster ["display_name"] = defaults ["edge_cluster_display_name"]
-  edge_cluster ["edge_cluster_profile_bindings"] = list()
+  edge_cluster ["cluster_profile_bindings"] = list()
   profile = dict()
   profile ["profile_name"] = "nsx-default-edge-high-availability-profile"
-  edge_cluster ["edge_cluster_profile_bindings"].append (profile)
+  edge_cluster ["cluster_profile_bindings"].append (profile)
   edge_cluster ["members"] = list()
   tn1 = dict()
   tn1 ["transport_node_name"] = defaults ["edge1_display_name"]
