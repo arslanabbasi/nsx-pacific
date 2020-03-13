@@ -31,7 +31,7 @@
         path_to_ova: "{{ nsx_ova_path }}"
         ova_file: "{{ nsx_ova }}"
         vcenter: "{{ nsx_vcenter_fqdn }}"
-        vcenter_user: "{{ nsx_vcenter_user }}"
+        vcenter_user: "{{ nsx_vcenter_username }}"
         vcenter_passwd: "{{ nsx_vcenter_password }}"
         deployment_size: "small"
         role: "NSX Manager"
