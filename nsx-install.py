@@ -669,11 +669,11 @@ def generate_vars_file():
   host_switch = dict()
   host_switch ["host_switch_id"] = get_vds_uuid (config ["host_vds_name"], config ["vcenter_fqdn"], config ["vcenter_username"], config ["vcenter_password"])
   host_switch ["host_switch_type"] = "VDS"
-  host_switch ["host_switch_name"] = "STANDARD"
+  host_switch ["host_switch_mode"] = "STANDARD"
   host_switch ["host_switch_profiles"] = list()
   host_switch_profile = dict()
   host_switch_profile ["type"] = "UplinkHostSwitchProfile"
-  host_switch_profile ["name"] = "host_default_host_switch_profile"
+  host_switch_profile ["name"] = defaults ["host_default_host_switch_profile"]
   host_switch ["host_switch_profiles"].append (host_switch_profile)
   host_switches.append (host_switch)
   host_switch ["pnics"] = list()
@@ -705,6 +705,7 @@ def generate_vars_file():
   host_switch_spec ["resource_type"] = "StandardHostSwitchSpec"
   tnp ["host_switch_spec"] = host_switch_spec
   host_tnps.append (tnp)
+  tnp ["description"] = defaults ["host_tnp_display_name"]
   nsx_vars ["transport_node_profiles"] = host_tnps
 
   tn_collections = list()
@@ -713,6 +714,7 @@ def generate_vars_file():
     tn_collection = dict()
     tn_collection ["state"] = "present"
     tn_collection ["display_name"] = "TNP" + "_" + cluster
+    tn_collection ["description"] = "TNP" + "_" + cluster
     tn_collection ["resource_type"] = "TransportNodeCollection"
     tn_collection ["compute_manager_name"] = defaults ["compute_manager_name"]
     tn_collection ["cluster_name"] = cluster
@@ -731,12 +733,51 @@ def generate_vars_file():
 #   - Run Ansible playbooks
 #
 def install_nsx():
-  logging.debug("install_nsx: Started")
+  logging.debug ("install_nsx: Started")
 
   generate_vars_file()
-#  os.system ("cat %s" % g_nsx_install_vars)
   logging.debug("install_nsx: Done. Variables file generated.")
-  print ("Reseting defaults done.")
+  print ("Variables file generated, Starting install")
+
+  print ("Deploying NSX Manager Cluster")
+  logging.debug ("Deploying First NSX node")
+  os.system ("ansible-playbook 01_deploy_first_node.yml && sleep 300")
+
+  logging.debug ("Accepting EULA and adding NSX License")
+  os.system ("ansible-playbook 02_add_nsx_license_accept_eula.yml")
+
+  logging.debug ("Configuring Compute Manager")
+  os.system ("ansible-playbook 03_configure_compute_manager.yml")
+
+  logging.debug ("Deploying second and third NSX node")
+#  os.system ("ansible-playbook 04_deploy_second_third_node.yml && sleep 300")
+
+  logging.debug ("Deploying Transport Zones")
+  os.system ("ansible-playbook 05_setup_transport_zones.yml")
+
+  print ("Deploying Edge Cluster")
+  logging.debug ("Deploying Tunnel IPs")
+  os.system ("ansible-playbook 06_create_tunnel_ip_pools.yml")
+
+  logging.debug ("Creating Edge Transport nodes")
+  os.system ("07_create_edge_transport_nodes.yml && sleep 300")
+
+  logging.debug ("Creating Edge Cluster")
+  os.system ("08_setup_edge_cluster.yml")
+
+  print ("Creating a Tier0 Gateway")
+  logging.debug ("Configure T0 Gateway")
+  os.system ("09_configure_t0_gateway.yml")
+
+  print ("Prepping Hosts for NSX")
+  logging.debug ("Creating TNP")
+  os.system ("10_create_transport_node_profiles.yml")
+
+  logging.debug ("Prepping hosts")
+  os.system ("11_configure_nsx_on_cluster.yml")
+
+  logging.debug ("install_nsx: Done")
+  print ("All deployments done!")
 
 
 
