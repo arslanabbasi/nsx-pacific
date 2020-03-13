@@ -91,6 +91,15 @@ def writeheader(fd, msg):
   fd.write ("#-------------------------------------------------------------------------------\n")
 
 
+def run_playbook(playbook, wait=0):
+  if (wait == 0):
+    cmd = "ansible-playbook -vvvv %s >> %s 2>&1" % (playbook, g_logfile)
+  else:
+    cmd = "ansible-playbook -vvvv %s >> %s 2>&1 && sleep %s" % (playbook, g_logfile, wait)
+  logging.debug ("Running command: %s" % cmd)
+  os.system (cmd)
+
+
 def get_obj(content, vimtype, name):
     obj = None
     container = content.viewManager.CreateContainerView(
@@ -741,40 +750,40 @@ def install_nsx():
 
   print ("Deploying NSX Manager Cluster")
   logging.debug ("Deploying First NSX node")
-  os.system ("ansible-playbook 01_deploy_first_node.yml && sleep 300")
+  run_playbook ("01_deploy_first_node.yml", wait=300)
 
   logging.debug ("Accepting EULA and adding NSX License")
-  os.system ("ansible-playbook 02_add_nsx_license_accept_eula.yml")
+  run_playbook ("02_add_nsx_license_accept_eula.yml")
 
   logging.debug ("Configuring Compute Manager")
-  os.system ("ansible-playbook 03_configure_compute_manager.yml")
+  run_playbook ("03_configure_compute_manager.yml")
 
   logging.debug ("Deploying second and third NSX node")
-#  os.system ("ansible-playbook 04_deploy_second_third_node.yml && sleep 300")
+  run_playbook ("04_deploy_second_third_node.yml", wait=300)
 
   logging.debug ("Deploying Transport Zones")
-  os.system ("ansible-playbook 05_setup_transport_zones.yml")
+  run_playbook ("05_setup_transport_zones.yml")
 
   print ("Deploying Edge Cluster")
   logging.debug ("Deploying Tunnel IPs")
-  os.system ("ansible-playbook 06_create_tunnel_ip_pools.yml")
+  run_playbook ("06_create_tunnel_ip_pools.yml")
 
   logging.debug ("Creating Edge Transport nodes")
-  os.system ("07_create_edge_transport_nodes.yml && sleep 300")
+  run_playbook ("07_create_edge_transport_nodes.yml", wait=300)
 
   logging.debug ("Creating Edge Cluster")
-  os.system ("08_setup_edge_cluster.yml")
+  run_playbook ("08_setup_edge_cluster.yml")
 
   print ("Creating a Tier0 Gateway")
   logging.debug ("Configure T0 Gateway")
-  os.system ("09_configure_t0_gateway.yml")
+  run_playbook ("09_configure_t0_gateway.yml")
 
   print ("Prepping Hosts for NSX")
   logging.debug ("Creating TNP")
-  os.system ("10_create_transport_node_profiles.yml")
+  run_playbook("10_create_transport_node_profiles.yml")
 
   logging.debug ("Prepping hosts")
-  os.system ("11_configure_nsx_on_cluster.yml")
+  run_playbook("11_configure_nsx_on_cluster.yml")
 
   logging.debug ("install_nsx: Done")
   print ("All deployments done!")
