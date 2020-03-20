@@ -12,7 +12,7 @@ The provided nsx-install.py script merges these files to generate a JSON file wh
 # Dependencies
 There are dependency on the following tools:
 * Python > 3.x
-* Ansible > 2.7x
+* Ansible > 2.9.x
 * PyVmomi
 
 # Getting Started
