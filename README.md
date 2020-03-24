@@ -17,15 +17,19 @@ There are dependency on the following tools:
 
 # Getting Started
 * Clone this repo to a linux based system (Ubuntu/CentOS)
-* Make sure the dependencies are met
+* Make sure the dependencies are met (Install Python/Ansible/PyVmomi)
+* Download the NSX unified appliance installer OVA on the local file system
+* Edit nsx-config.txt file and update ALL the fields. Make sure you also have a NSX License!
+* Run python nsx-install.py --start
+
+# Optional (Advanced) functionality
 * Run python nsx-install.py --reset-defaults
   This creates the nsx-defaults.txt file. Edit the file if needed. Editing it is purely optional
-  Note: Running python nsx-install.py --reset-defaults will overwrite the file
+  Note: Running python nsx-install.py --reset-defaults will overwrite the existing file
 * Run python nsx-install.py --reset-config
   This creates the nsx-config.txt file. Edit the file and provide all the information
   Save the nsx-config.txt in case you want to refer to it later
-  Note: Running python nsx-install.py --reset-config will overwrite the file
-* Run python nsx-install.py --start
+  Note: Running python nsx-install.py --reset-config will overwrite the existing file
 
 # Logging
 All logs are generated in nsx-install.log
