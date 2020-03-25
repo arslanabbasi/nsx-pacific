@@ -15,6 +15,18 @@ There are dependency on the following tools:
 * Ansible > 2.9.x
 * PyVmomi
 
+## Version Check
+An easy way to verify if Python and Ansible are in the right versions:
+```
+$> ansible-playbook --version
+ansible-playbook 2.9.6
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = ['/home/vmware/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python3.6/dist-packages/ansible
+  executable location = /usr/local/bin/ansible-playbook
+  python version = 3.6.9 (default, Nov  7 2019, 10:44:02) [GCC 8.3.0]
+```
+
 # Getting Started
 * Clone this repo to a linux based system (Ubuntu/CentOS)
 * Make sure the dependencies are met (Install Python/Ansible/PyVmomi)
