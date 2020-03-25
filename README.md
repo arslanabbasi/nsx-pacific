@@ -1,4 +1,4 @@
-# NSX Automated install
+# NSX Install for Project Pacific
 
 # Overview
 This repository contains code that simplifies NSX Install. The information needed to install NSX is read from 2 files.
